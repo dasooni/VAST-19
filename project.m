@@ -72,18 +72,17 @@ for j = 1 : length(numAreas)
 
 end
 
-%rolling_mainshock_mean = sortrows(vertcat(rolling_mainshock_mean{:}));
-
-%stackedplot(rolling_mainshock_mean);
-%stackedplot(rolling_aftershock_mean)
-
-plotColors = jet(7);
+order = [2 3 4 6 7 12 13];
+order2 = [1 5 8 9 10 11];
+order3 = [14 15 16 17 18 19];
+plotColors = jet(19);
 cmap = colormap(prism(7));
+
 subplot(3,1,1);
 hold on
+for k = 1:length(order)
 
-for k = 1:7
-    s1 = stem(rolling_earthquake_mean{k}, "shake_intensity",'Color', cmap(k,:), 'Marker','o','LineStyle','-.' , 'LineWidth', 1);
+    stem(rolling_earthquake_mean{order(:,k)}, "shake_intensity",'Color', cmap(k,:), 'Marker','o','LineStyle','-.' , 'LineWidth', 1);
 end
 hold off
 legend show
@@ -91,25 +90,45 @@ ylim([0 6.7])
 
 subplot(3,1,2);
 hold on
-for k = 8:13
-    stem(rolling_earthquake_mean{k}, "shake_intensity", 'Color', plotColors(k-7,:), 'Marker','o', 'LineStyle','-.', 'LineWidth',1);
+for ik = 1:length(order2)
+    stem(rolling_earthquake_mean{order2(:,ik)}, "shake_intensity", 'Color', cmap(ik,:), 'Marker','o', 'LineStyle','-.', 'LineWidth',1);
 end
 hold off
 legend show
-ylim([0 6])
+ylim([0 6.7])
 
 subplot(3,1,3);
 hold on
-for k = 14:19
-    stem(rolling_earthquake_mean{k}, "shake_intensity", 'Color', plotColors(k-12,:), 'Marker','o', 'LineStyle','-.','LineWidth',1);
+for jk = 1:length(order3)
+
+    stem(rolling_earthquake_mean{order3(:,jk)}, "shake_intensity", 'Color', cmap(jk,:), 'Marker','o', 'LineStyle','-.','LineWidth',1);
+end
+hold off 
+legend show
+ylim([0 6.7])
+%%
+mostDamaged = [3, 4, 7, 12];
+for i = 1:length(mostDamaged)
+    MD_earthquake_rows = earthquake_table{:,'location'} == mostDamaged(i);
+    MD_rolling_earthquake_mean{i} = rmmissing (retime(earthquake_table(MD_earthquake_rows,6), "hourly", "mean"));
+end
+
+MD_3 = MD_rolling_earthquake_mean{1};
+MD_4 = MD_rolling_earthquake_mean{2};
+MD_7 = MD_rolling_earthquake_mean{3};
+MD_12 = MD_rolling_earthquake_mean{4};
+% MD = [MD_3.shake_intensity(:), MD_4.shake_intensity(:), MD_7.shake_intensity(:), MD_12.shake_intensity(:)];
+
+
+for j = 1:length(MD_rolling_earthquake_mean)
+    hold on
+    bar(MD_rolling_earthquake_mean{j}.time, MD_rolling_earthquake_mean{j}.shake_intensity);    
 end
 hold off
 legend show
-ylim([0 6])
 
-%% TAKING A CLOSER LOOK AT BUILDING, POWER ETC DAMAGES DURING PRESHOCK, MAINSHOCK AND AFTERSHOCK FOR THE MOST DAMAGED AREAS.
 
-mostDamaged = [3, 4, 7, 12];
+%% TAKING A CLOSER LOOK AT BUILDING, POWER ETC DAMAGES DURING PRESHOCK, MAINSHOCK AND AFTERSHOCK.
 
 for i = 1:length(numAreas)
     earthquake_rows = earthquake_table{:,'location'} == numAreas(i);

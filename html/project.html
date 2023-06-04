@@ -1,0 +1,393 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>project</title><meta name="generator" content="MATLAB 9.14"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-05-25"><meta name="DC.source" content="project.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">OVERALL DAMAGE ACROSS ALL CATEGORIES AND AREAS</a></li><li><a href="#3">NUMBER OF REPORTS TO APPROX. POPULATION SIZE FOR EACH NEIGHBORHOOD.</a></li><li><a href="#4">TAKING A CLOSER LOOK AT THE SHAKE INTENSITY DURING FORESHOCK, MAINSHOCK AND AFTERSHOCK.</a></li><li><a href="#5">TAKING A CLOSER LOOK AT BUILDING, POWER ETC DAMAGES DURING PRESHOCK, MAINSHOCK AND AFTERSHOCK FOR THE MOST DAMAGED AREAS.</a></li></ul></div><pre class="codeinput"><span class="comment">%PRE-PROCESSING</span>
+clear
+load(<span class="string">"MC1\dataFile.mat"</span>);
+
+<span class="comment">%Conversion to timetable type to utilize MATLAB functions specifically to</span>
+<span class="comment">%this type.</span>
+timetabl = table2timetable(mc1reportsdata);
+timetabl = sortrows(timetabl);
+
+<span class="comment">% Table of only damage intensity data.</span>
+damages = mc1reportsdata(:, [<span class="string">"medical"</span>, <span class="string">"sewer_and_water"</span>, <span class="string">"power"</span>, <span class="keyword">...</span>
+                <span class="string">"roads_and_bridges"</span>, <span class="string">"buildings"</span>, <span class="string">"shake_intensity"</span>]);
+
+<span class="comment">%Damage types conversion to categorical for plotting purposes.</span>
+types = damages.Properties.VariableNames;
+types = categorical(types);
+
+<span class="comment">%Number of areas in order for plotting.</span>
+numAreas = 1:19;
+
+<span class="comment">%Filtering data based on prequake, mainshock and aftershock.</span>
+prequake_index = timerange(<span class="string">'2020-04-06 14:00:00'</span>, <span class="string">'2020-04-07 00:00:00'</span>);
+mainshock_index = timerange(<span class="string">'2020-04-08 07:00:00'</span>, <span class="string">'2020-04-09 00:00:00'</span>);
+aftershock_index = timerange(<span class="string">'2020-04-09 11:00:00'</span>, <span class="string">'2020-04-10 00:00:00'</span>);
+earthquake_index = timerange(<span class="string">'2020-04-06 14:00:00'</span>, <span class="string">'2020-04-10 00:00:00'</span>);
+
+prequake_table = timetabl(prequake_index,:);
+mainshock_table = timetabl(mainshock_index,:);
+aftershock_table = timetabl(aftershock_index,:);
+earthquake_table = timetabl(earthquake_index,:);
+</pre><h2 id="2">OVERALL DAMAGE ACROSS ALL CATEGORIES AND AREAS</h2><pre class="codeinput">boxplot(damages{:,:}, types);
+title(<span class="string">'Overall damage intensity by category'</span>)
+xlabel(<span class="string">'Category'</span>)
+ylabel(<span class="string">'Damage intensity'</span>)
+</pre><img vspace="5" hspace="5" src="project_01.png" alt=""> <h2 id="3">NUMBER OF REPORTS TO APPROX. POPULATION SIZE FOR EACH NEIGHBORHOOD.</h2><pre class="codeinput">numReports = hist(timetabl{:,<span class="string">"location"</span>},numAreas);
+out = [numAreas; numReports];
+
+b = bar(numAreas, numReports, <span class="string">'FaceColor'</span>, <span class="string">'flat'</span>);
+
+b.CData = numReports / max(numReports);
+</pre><img vspace="5" hspace="5" src="project_02.png" alt=""> <h2 id="4">TAKING A CLOSER LOOK AT THE SHAKE INTENSITY DURING FORESHOCK, MAINSHOCK AND AFTERSHOCK.</h2><pre class="codeinput"><span class="keyword">for</span> i = 1:length(numAreas)
+    prequake_rows = prequake_table{:,<span class="string">"location"</span>} == numAreas(i);
+    mainshock_rows = mainshock_table{:,<span class="string">"location"</span>} == numAreas(i);
+    aftershock_rows = aftershock_table{:,<span class="string">"location"</span>} == numAreas(i);
+    earthquake_rows = earthquake_table{:,<span class="string">'location'</span>} == numAreas(i);
+
+    rolling_prequake_mean{i} = retime(prequake_table(prequake_rows,<span class="string">"shake_intensity"</span>), <span class="string">"hourly"</span>, <span class="string">"mean"</span>);
+    rolling_prequake_mean{i}.location = repmat(numAreas(i), size(rolling_prequake_mean{i},1),1);
+
+    rolling_mainshock_mean{i} = retime(mainshock_table(mainshock_rows,<span class="string">"shake_intensity"</span>), <span class="string">"hourly"</span>, <span class="string">"mean"</span>);
+    <span class="comment">%rolling_mainshock_mean{i}.location = repmat(numAreas(i), size(rolling_mainshock_mean{i},1),1);</span>
+
+    rolling_aftershock_mean{i} = retime(aftershock_table(aftershock_rows,<span class="string">"shake_intensity"</span>), <span class="string">"hourly"</span>, <span class="string">"mean"</span>);
+    rolling_aftershock_mean{i}.location = repmat(numAreas(i), size(rolling_aftershock_mean{i},1),1);
+
+    rolling_earthquake_mean{i} = retime(earthquake_table(earthquake_rows,<span class="string">"shake_intensity"</span>), <span class="string">"hourly"</span>, <span class="string">"mean"</span>);
+
+<span class="keyword">end</span>
+
+<span class="keyword">for</span> j = 1 : length(numAreas)
+    rolling_prequake_mean{j} = rmmissing(rolling_prequake_mean{j});
+    rolling_mainshock_mean{j} = rmmissing(rolling_mainshock_mean{j});
+    rolling_aftershock_mean{j} = rmmissing(rolling_aftershock_mean{j});
+    rolling_earthquake_mean{j} = rmmissing(rolling_earthquake_mean{j});
+
+<span class="keyword">end</span>
+
+<span class="comment">%rolling_mainshock_mean = sortrows(vertcat(rolling_mainshock_mean{:}));</span>
+
+<span class="comment">%stackedplot(rolling_mainshock_mean);</span>
+<span class="comment">%stackedplot(rolling_aftershock_mean)</span>
+
+plotColors = jet(7);
+cmap = colormap(prism(7));
+subplot(3,1,1);
+hold <span class="string">on</span>
+
+<span class="keyword">for</span> k = 1:7
+    s1 = stem(rolling_earthquake_mean{k}, <span class="string">"shake_intensity"</span>,<span class="string">'Color'</span>, cmap(k,:), <span class="string">'Marker'</span>,<span class="string">'o'</span>,<span class="string">'LineStyle'</span>,<span class="string">'-.'</span> , <span class="string">'LineWidth'</span>, 1);
+<span class="keyword">end</span>
+hold <span class="string">off</span>
+legend <span class="string">show</span>
+ylim([0 6.7])
+
+subplot(3,1,2);
+hold <span class="string">on</span>
+<span class="keyword">for</span> k = 8:13
+    stem(rolling_earthquake_mean{k}, <span class="string">"shake_intensity"</span>, <span class="string">'Color'</span>, plotColors(k-7,:), <span class="string">'Marker'</span>,<span class="string">'o'</span>, <span class="string">'LineStyle'</span>,<span class="string">'-.'</span>, <span class="string">'LineWidth'</span>,1);
+<span class="keyword">end</span>
+hold <span class="string">off</span>
+legend <span class="string">show</span>
+ylim([0 6])
+
+subplot(3,1,3);
+hold <span class="string">on</span>
+<span class="keyword">for</span> k = 14:19
+    stem(rolling_earthquake_mean{k}, <span class="string">"shake_intensity"</span>, <span class="string">'Color'</span>, plotColors(k-12,:), <span class="string">'Marker'</span>,<span class="string">'o'</span>, <span class="string">'LineStyle'</span>,<span class="string">'-.'</span>,<span class="string">'LineWidth'</span>,1);
+<span class="keyword">end</span>
+hold <span class="string">off</span>
+legend <span class="string">show</span>
+ylim([0 6])
+</pre><img vspace="5" hspace="5" src="project_03.png" alt=""> <h2 id="5">TAKING A CLOSER LOOK AT BUILDING, POWER ETC DAMAGES DURING PRESHOCK, MAINSHOCK AND AFTERSHOCK FOR THE MOST DAMAGED AREAS.</h2><pre class="codeinput">mostDamaged = [3, 4, 7, 12];
+
+<span class="keyword">for</span> i = 1:length(numAreas)
+    earthquake_rows = earthquake_table{:,<span class="string">'location'</span>} == numAreas(i);
+    rolling_earthquake_mean{i} = retime(earthquake_table(earthquake_rows,1:5), <span class="string">"daily"</span>, <span class="string">"mean"</span>);
+<span class="keyword">end</span>
+<span class="keyword">for</span> j = 1 : length(numAreas)
+    <span class="comment">%rolling_earthquake_mean{j} = rmmissing(rolling_earthquake_mean{j});</span>
+<span class="keyword">end</span>
+
+figure(1)
+<span class="keyword">for</span> k = 1:19
+    subplot(5,4, k);
+
+    <span class="comment">%s(:,k) = bubblechart(rolling_earthquake_mean{:,k}, 1:5,'time', 5);</span>
+    <span class="comment">%sc = scatter(rolling_earthquake_mean{:,k}, 'time', [1:5])</span>
+    b(:,k) = bar(rolling_earthquake_mean{:,k}.time, rolling_earthquake_mean{:,k}{:,1:5});
+    ylim([5 10])
+
+<span class="keyword">end</span>
+
+sgtitle(<span class="string">'Daily mean of damage reports &gt;5'</span>)
+</pre><pre class="codeoutput error">Unable to perform assignment because the size of the left side is 1-by-1 and the size of the right side is 1-by-5.
+
+Error in project (line 128)
+    b(:,k) = bar(rolling_earthquake_mean{:,k}.time, rolling_earthquake_mean{:,k}{:,1:5});
+</pre><pre class="codeinput">oldTown = timetabl.location == 3;
+SafeTown = timetabl.location == 4;
+WilsonForest = timetabl.location == 7;
+ScenicVista = timetabl.location == 8;
+
+oldTown = timetabl(oldTown, :);
+SafeTown = timetabl(SafeTown, :);
+WilsonForest = timetabl(WilsonForest, :);
+ScenicVista = timetabl(ScenicVista, :);
+
+
+[~, dayCol] = weekday(oldTown.time);
+[~, dayCol2] = weekday(SafeTown.time);
+[~, dayCol3] = weekday(WilsonForest.time);
+[~, dayCol4] = weekday(ScenicVista.time);
+
+subplot(2,2,1)
+boxplot(oldTown.shake_intensity,dayCol);
+title(<span class="string">"Old Town - Daily Shake Intensity"</span>)
+subplot(2,2,2);
+boxplot(SafeTown.shake_intensity,dayCol2);
+title(<span class="string">"Safe Town - Daily Shake Intensity"</span>)
+subplot(2,2,3);
+boxplot(WilsonForest.shake_intensity,dayCol3);
+title(<span class="string">"Wilson Forest - Daily Shake Intensity"</span>)
+subplot(2,2,4);
+boxplot(ScenicVista.shake_intensity,dayCol4);
+title(<span class="string">"Scenic Vista - Daily Shake Intensity"</span>)
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2023a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%PRE-PROCESSING
+clear
+load("MC1\dataFile.mat");
+
+%Conversion to timetable type to utilize MATLAB functions specifically to
+%this type.
+timetabl = table2timetable(mc1reportsdata);
+timetabl = sortrows(timetabl);
+
+% Table of only damage intensity data.
+damages = mc1reportsdata(:, ["medical", "sewer_and_water", "power", ...
+                "roads_and_bridges", "buildings", "shake_intensity"]);
+
+%Damage types conversion to categorical for plotting purposes.
+types = damages.Properties.VariableNames;
+types = categorical(types);
+
+%Number of areas in order for plotting.
+numAreas = 1:19;
+
+%Filtering data based on prequake, mainshock and aftershock.
+prequake_index = timerange('2020-04-06 14:00:00', '2020-04-07 00:00:00');
+mainshock_index = timerange('2020-04-08 07:00:00', '2020-04-09 00:00:00');
+aftershock_index = timerange('2020-04-09 11:00:00', '2020-04-10 00:00:00');
+earthquake_index = timerange('2020-04-06 14:00:00', '2020-04-10 00:00:00');
+
+prequake_table = timetabl(prequake_index,:);
+mainshock_table = timetabl(mainshock_index,:);
+aftershock_table = timetabl(aftershock_index,:);
+earthquake_table = timetabl(earthquake_index,:);
+
+%% OVERALL DAMAGE ACROSS ALL CATEGORIES AND AREAS
+boxplot(damages{:,:}, types);
+title('Overall damage intensity by category')
+xlabel('Category')
+ylabel('Damage intensity')
+
+%% NUMBER OF REPORTS TO APPROX. POPULATION SIZE FOR EACH NEIGHBORHOOD.
+
+numReports = hist(timetabl{:,"location"},numAreas);
+out = [numAreas; numReports];
+
+b = bar(numAreas, numReports, 'FaceColor', 'flat');
+
+b.CData = numReports / max(numReports);
+%% TAKING A CLOSER LOOK AT THE SHAKE INTENSITY DURING FORESHOCK, MAINSHOCK AND AFTERSHOCK.
+
+for i = 1:length(numAreas)
+    prequake_rows = prequake_table{:,"location"} == numAreas(i);
+    mainshock_rows = mainshock_table{:,"location"} == numAreas(i);
+    aftershock_rows = aftershock_table{:,"location"} == numAreas(i);
+    earthquake_rows = earthquake_table{:,'location'} == numAreas(i);
+
+    rolling_prequake_mean{i} = retime(prequake_table(prequake_rows,"shake_intensity"), "hourly", "mean");
+    rolling_prequake_mean{i}.location = repmat(numAreas(i), size(rolling_prequake_mean{i},1),1);
+
+    rolling_mainshock_mean{i} = retime(mainshock_table(mainshock_rows,"shake_intensity"), "hourly", "mean");
+    %rolling_mainshock_mean{i}.location = repmat(numAreas(i), size(rolling_mainshock_mean{i},1),1);
+
+    rolling_aftershock_mean{i} = retime(aftershock_table(aftershock_rows,"shake_intensity"), "hourly", "mean");
+    rolling_aftershock_mean{i}.location = repmat(numAreas(i), size(rolling_aftershock_mean{i},1),1);
+
+    rolling_earthquake_mean{i} = retime(earthquake_table(earthquake_rows,"shake_intensity"), "hourly", "mean");
+    
+end
+
+for j = 1 : length(numAreas)
+    rolling_prequake_mean{j} = rmmissing(rolling_prequake_mean{j});
+    rolling_mainshock_mean{j} = rmmissing(rolling_mainshock_mean{j});
+    rolling_aftershock_mean{j} = rmmissing(rolling_aftershock_mean{j});
+    rolling_earthquake_mean{j} = rmmissing(rolling_earthquake_mean{j});
+
+end
+
+%rolling_mainshock_mean = sortrows(vertcat(rolling_mainshock_mean{:}));
+
+%stackedplot(rolling_mainshock_mean);
+%stackedplot(rolling_aftershock_mean)
+
+plotColors = jet(7);
+cmap = colormap(prism(7));
+subplot(3,1,1);
+hold on
+
+for k = 1:7
+    s1 = stem(rolling_earthquake_mean{k}, "shake_intensity",'Color', cmap(k,:), 'Marker','o','LineStyle','-.' , 'LineWidth', 1);
+end
+hold off
+legend show
+ylim([0 6.7])
+
+subplot(3,1,2);
+hold on
+for k = 8:13
+    stem(rolling_earthquake_mean{k}, "shake_intensity", 'Color', plotColors(k-7,:), 'Marker','o', 'LineStyle','-.', 'LineWidth',1);
+end
+hold off
+legend show
+ylim([0 6])
+
+subplot(3,1,3);
+hold on
+for k = 14:19
+    stem(rolling_earthquake_mean{k}, "shake_intensity", 'Color', plotColors(k-12,:), 'Marker','o', 'LineStyle','-.','LineWidth',1);
+end
+hold off
+legend show
+ylim([0 6])
+
+%% TAKING A CLOSER LOOK AT BUILDING, POWER ETC DAMAGES DURING PRESHOCK, MAINSHOCK AND AFTERSHOCK FOR THE MOST DAMAGED AREAS.
+
+mostDamaged = [3, 4, 7, 12];
+
+for i = 1:length(numAreas)
+    earthquake_rows = earthquake_table{:,'location'} == numAreas(i);
+    rolling_earthquake_mean{i} = retime(earthquake_table(earthquake_rows,1:5), "daily", "mean");
+end
+for j = 1 : length(numAreas)
+    %rolling_earthquake_mean{j} = rmmissing(rolling_earthquake_mean{j});
+end
+
+figure(1)
+for k = 1:19
+    subplot(5,4, k);
+
+    %s(:,k) = bubblechart(rolling_earthquake_mean{:,k}, 1:5,'time', 5);
+    %sc = scatter(rolling_earthquake_mean{:,k}, 'time', [1:5])
+    b(:,k) = bar(rolling_earthquake_mean{:,k}.time, rolling_earthquake_mean{:,k}{:,1:5});
+    ylim([5 10])
+
+end
+
+sgtitle('Daily mean of damage reports >5')
+
+
+%%
+
+oldTown = timetabl.location == 3;
+SafeTown = timetabl.location == 4;
+WilsonForest = timetabl.location == 7;
+ScenicVista = timetabl.location == 8;
+
+oldTown = timetabl(oldTown, :);
+SafeTown = timetabl(SafeTown, :);
+WilsonForest = timetabl(WilsonForest, :);
+ScenicVista = timetabl(ScenicVista, :);
+
+
+[~, dayCol] = weekday(oldTown.time);
+[~, dayCol2] = weekday(SafeTown.time);
+[~, dayCol3] = weekday(WilsonForest.time);
+[~, dayCol4] = weekday(ScenicVista.time);
+
+subplot(2,2,1)
+boxplot(oldTown.shake_intensity,dayCol);
+title("Old Town - Daily Shake Intensity")
+subplot(2,2,2);
+boxplot(SafeTown.shake_intensity,dayCol2);
+title("Safe Town - Daily Shake Intensity")
+subplot(2,2,3);
+boxplot(WilsonForest.shake_intensity,dayCol3);
+title("Wilson Forest - Daily Shake Intensity")
+subplot(2,2,4);
+boxplot(ScenicVista.shake_intensity,dayCol4);
+title("Scenic Vista - Daily Shake Intensity")
+##### SOURCE END #####
+--></body></html>
